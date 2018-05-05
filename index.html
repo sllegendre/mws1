@@ -6,46 +6,45 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/main.css">
     <title>Restaurant Reviews</title>
+    <meta name="viewport" content="width=device-width" />
 </head>
 
 
 <body>
-<div class="container">
-    <header class="box">
-        <nav>
-            <h1><a href="/">Restaurant Reviews</a></h1>
-        </nav>
-    </header>
+
+<header>
+    <nav>
+        <h1><a href="/">Restaurant Reviews</a></h1>
+    </nav>
+</header>
+
+<main id="maincontent">
+    <section id="map-container">
+        <div id="map"></div>
+    </section>
+    <section>
+        <div class="filter-options">
+            <h2>Filter Results</h2>
+            <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+                <option value="all">All Neighborhoods</option>
+            </select>
+            <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+                <option value="all">All Cuisines</option>
+            </select>
+        </div>
+        <div id="restaurants-list" class="container"></div>
+    </section>
+</main>
+
+<script type="application/javascript" charset="utf-8" src="js/dbhelper.js"></script>
+<script type="application/javascript" charset="utf-8" src="js/main.js"></script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4a_ueS5SnQE4zVjQYl4e3Leenf6glnZA&libraries=places&callback=initMap"></script>
 
 
-    <main id="maincontent" class="box">
-        <section id="map-container" class="box">
-            <div id="map"></div>
-        </section>
-        <section class="box">
-            <div class="filter-options">
-                <h2>Filter Results</h2>
-                <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
-                    <option value="all">All Neighborhoods</option>
-                </select>
-                <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
-                    <option value="all">All Cuisines</option>
-                </select>
-            </div>
-            <ul id="restaurants-list"></ul>
-        </section>
-    </main>
-
-    <script type="application/javascript" charset="utf-8" src="js/dbhelper.js"></script>
-    <script type="application/javascript" charset="utf-8" src="js/main.js"></script>
-    <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4a_ueS5SnQE4zVjQYl4e3Leenf6glnZA&libraries=places&callback=initMap"></script>
-
-
-    <footer id="footer" class="box">
-        Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
-    </footer>
-</div>
+<footer id="footer">
+    Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
+</footer>
 
 </body>
 
