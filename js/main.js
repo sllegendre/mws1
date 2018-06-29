@@ -142,6 +142,7 @@ createRestaurantHTML = (restaurant) => {
     const image = document.createElement('img');
     image.className = 'restaurant-img';
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    image.alt = ""; // Leaving this empty. Someone who cannot see does not want to hear "image of restaurant 20 times" - that conveys no meaning to them
     li.append(image);
 
     const name = document.createElement('h1');
