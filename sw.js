@@ -12,23 +12,36 @@ self.addEventListener('install', function (event) {
                 '/js/dbhelper.js',
                 '/js/main.js',
                 '/js/IndexController.js',
+                '/js/restaurant_info.js',
                 '/data/restaurants.json',
-                'img/1.jpg',
-                'img/2.jpg',
-                'img/3.jpg',
-                'img/4.jpg',
-                'img/5.jpg',
-                'img/6.jpg',
-                'img/7.jpg',
-                'img/8.jpg',
-                'img/9.jpg',
-                'img/10.jpg'
+                '/img/1.jpg',
+                '/img/2.jpg',
+                '/img/3.jpg',
+                '/img/4.jpg',
+                '/img/5.jpg',
+                '/img/6.jpg',
+                '/img/7.jpg',
+                '/img/8.jpg',
+                '/img/9.jpg',
+                '/img/10.jpg',
+                '/index.html',
+                '/restaurant.html',
+                '/restaurant.html?id=1',
+                '/restaurant.html?id=2',
+                '/restaurant.html?id=3',
+                '/restaurant.html?id=4',
+                '/restaurant.html?id=5',
+                '/restaurant.html?id=6',
+                '/restaurant.html?id=7',
+                '/restaurant.html?id=8',
+                '/restaurant.html?id=9',
+                '/restaurant.html?id=10',
             ]).then(function (whatever) { // Dear Udacity Code Revier - is there a more elegant way of handling this?
 
                 var GoogleApis = [
                     /* GoogleMaps work around due to cors */
                     'https://maps.googleapis.com/maps/api/js?key=AIzaSyD4a_ueS5SnQE4zVjQYl4e3Leenf6glnZA&libraries=places&callback=initMap',
-                    /*
+
                     //These seem to be irrelevant but  I wonder why.... Can you help Udacity Examiner?
                     'https://maps.googleapis.com/maps-api-v3/api/js/33/4/common.js',
                     'https://maps.googleapis.com/maps-api-v3/api/js/33/4/util.js',
@@ -63,7 +76,7 @@ self.addEventListener('install', function (event) {
                     'https://maps.gstatic.com/mapfiles/mv/imgs8.png',
                     'https://maps.googleapis.com/maps-api-v3/api/js/33/4/stats.js'
 
-                    */
+
                 ];
 
                 console.log('should now fire the google apis..');
@@ -90,8 +103,8 @@ self.addEventListener('install', function (event) {
 
 
 self.addEventListener('fetch', function (event) {
-    //eventUrl = event.request.url;
-    //console.log(eventUrl);
+    eventUrl = event.request.url;
+    console.log(eventUrl);
     event.respondWith(
         caches.match(event.request).then(function (response) { //Going through all caches because of the opague no-cors responses...
             if (response) {
@@ -100,11 +113,13 @@ self.addEventListener('fetch', function (event) {
             } else {
                 return fetch(event.request).then(function (resp) {
                     if (resp.status == 404) {
-                        return new Response("404, bummer...");
+                        //return new Response("404, bummer...");
+                        console.log("404 4: "+event.request.toString());
                     }
                     return resp;
                 }).catch(function () {
-                    return new Response("You seem to be off the line... ");
+                    console.log("this is sugar: ");
+                    //return new Response("You seem to be off the line... ");
                 });
             }
         }));

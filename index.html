@@ -21,16 +21,16 @@
 
 <main id="maincontent">
     <a href="#filter-section" class="skip-link">Skip map to restaurant filters</a>
-    <section id="map-container">
+    <section id="map-container" role="application" aria-label="map of restaurants">
         <div id="map"></div>
     </section>
-    <section id="filter-section">
+    <section id="filter-section" role="listbox" aria-label="filter retaurants">
         <div class="filter-options">
             <h2>Filter Results</h2>
-            <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+            <select id="neighborhoods-select" name="neighborhoods" aria-label="filter by neighborhoods" onchange="updateRestaurants()">
                 <option value="all">All Neighborhoods</option>
             </select>
-            <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+            <select id="cuisines-select" name="cuisines" aria-label="filter by cuisine" onchange="updateRestaurants()">
                 <option value="all">All Cuisines</option>
             </select>
         </div>
