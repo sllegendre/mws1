@@ -13,7 +13,7 @@ self.addEventListener('install', function (event) {
                 '/js/main.js',
                 '/js/IndexController.js',
                 '/js/restaurant_info.js',
-                '/data/restaurants.json',
+               // '/data/restaurants.json',
                 '/img/1.jpg',
                 '/img/2.jpg',
                 '/img/3.jpg',
@@ -79,10 +79,8 @@ self.addEventListener('install', function (event) {
 
                 ];
 
-                console.log('should now fire the google apis..');
-
                 for (url in GoogleApis) {
-                    console.log('I am doing something with the GoogleApis');
+                    // The google maps related item come from a different origin and have to be stored differently
                     caches.open('OpaqueCache').then(function (cache) {
                         fetch(url, {
                             mode: 'no-cors'
