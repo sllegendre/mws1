@@ -4,6 +4,7 @@ Upon installation of the service worker, cache everything, so we can serce it in
 self.addEventListener('install', function (event) {
     event.waitUntil(
         caches.open('restaurants-static-v0').then(function (cache) {
+            console.log('am now caching stuff...');
             cache.addAll([
                 // These can be cached with addAll, because atomicity won't hurt (I expect all to go through)
                 '/',
@@ -13,7 +14,7 @@ self.addEventListener('install', function (event) {
                 '/js/main.js',
                 '/js/IndexController.js',
                 '/js/restaurant_info.js',
-               // '/data/restaurants.json',
+                // '/data/restaurants.json',
                 '/img/1.jpg',
                 '/img/2.jpg',
                 '/img/3.jpg',
@@ -102,17 +103,19 @@ self.addEventListener('install', function (event) {
 
 self.addEventListener('fetch', function (event) {
     eventUrl = event.request.url;
-    console.log(eventUrl);
+    console.log("a fetch event occurred: " + eventUrl);
     event.respondWith(
-        caches.match(event.request).then(function (response) { //Going through all caches because of the opague no-cors responses...
+        caches.match(event.request).then(function (response) {
+            console.log("Going through all caches because of the opague no-cors responses...");
             if (response) {
                 console.log('returning from cache...' + event.request.url);
                 return response;
             } else {
+                console.log("Did not find in cache... fetching");
                 return fetch(event.request).then(function (resp) {
                     if (resp.status == 404) {
                         //return new Response("404, bummer...");
-                        console.log("404 4: "+event.request.toString());
+                        console.log("404 4: " + event.request.toString());
                     }
                     return resp;
                 }).catch(function () {

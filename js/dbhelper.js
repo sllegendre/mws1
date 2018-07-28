@@ -27,36 +27,36 @@ class DBHelper {
 
         });
 
-        var restaurantData = false; //set to false initially.
-
         //Try to get new restaurants but regardless of whether I get fresh restaurants, return whats in the db
-        dbPromise.then(async function (db) {
-
-            var restaurantData = false;
+        dbPromise.then(function (db) {
 
             // fetch json from server
-            await fetch(DBHelper.DATABASE_URL).then(response => response.json()).then(function (data) {
-                restaurantData = data;
+            fetch(DBHelper.DATABASE_URL).then(response => response.json()).then(function (data) {
+                var restaurantData = data;
+
+
+                var tx = db.transaction('restaurants', 'readwrite');
+                var store = tx.objectStore('restaurants');
+
+                if (restaurantData) { //I have fresh restaurants data, so I'll write it to the db
+                    restaurantData.forEach(
+                        function (restaurant) {
+                            store.put(restaurant);
+                        }
+                    );
+                }
+
+                // return what I got from the database
+                callback(null, restaurantData);
+            }).catch(error => console.log(error)).then(function () {
+                var tx = db.transaction('restaurants', 'readonly');
+                var store = tx.objectStore('restaurants');
+                store.getAll().then(function (data) {
+                    callback(null, data);
+                }).catch(error => callback(error, null));
             });
 
-
-            var tx = db.transaction('restaurants', 'readwrite');
-            var store = tx.objectStore('restaurants');
-
-            if (restaurantData) { //I have restaurants data, so I'll write it to the db
-                restaurantData.forEach(
-                    function (restaurant) {
-                        store.put(restaurant);
-                    }
-                );
-            }
-
-            return store.getAll(); //regardless of what I got, I am giving back what I have in the db
-        }).then(function (restaurantsFromStore) {
-                // return what I got from the database
-                callback(null, restaurantsFromStore);
-            }
-        );
+        });
 
         dbPromise.catch(function (reason) { //Not sure if this works. If for some reason the promise does not resolve
             console.log("failed...reason is");
