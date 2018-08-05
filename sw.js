@@ -1,3 +1,7 @@
+importScripts('js/dbhelper.js');
+importScripts('js/idb.js');
+
+
 /*
 Upon installation of the service worker, cache everything, so we can serce it in case there is no internet connectivity
 */
@@ -86,7 +90,7 @@ self.addEventListener('install', function (event) {
                         fetch(url, {
                             mode: 'no-cors'
                         }).then(function (response) {
-                            console.log('opague cached something');
+                            //opague cached something');
                             return cache.put(url, response);
                         });
                     }).catch(function (e) {
@@ -102,16 +106,14 @@ self.addEventListener('install', function (event) {
 
 
 self.addEventListener('fetch', function (event) {
-    eventUrl = event.request.url;
-    console.log("a fetch event occurred: " + eventUrl);
     event.respondWith(
         caches.match(event.request).then(function (response) {
-            console.log("Going through all caches because of the opague no-cors responses...");
+            // Going through all caches because of the opague no-cors responses...
             if (response) {
-                console.log('returning from cache...' + event.request.url);
+                // returning from cache...
                 return response;
             } else {
-                console.log("Did not find in cache... fetching");
+                // Did not find in cache... fetching
                 return fetch(event.request).then(function (resp) {
                     if (resp.status == 404) {
                         //return new Response("404, bummer...");
@@ -124,5 +126,14 @@ self.addEventListener('fetch', function (event) {
                 });
             }
         }));
+});
+
+
+self.addEventListener('sync', function (event) {
+    console.log("snyc event... verpennt");
+    if (event.tag == 'sendReview') {
+        console.log('in sendREview in sw.js');
+        event.waitUntil(DBHelper.submitReviewsSavedUntilOnline());
+    }
 });
 

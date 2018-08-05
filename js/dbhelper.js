@@ -3,6 +3,8 @@
  */
 
 
+
+
 class DBHelper {
 
 
@@ -201,5 +203,65 @@ class DBHelper {
         );
         return marker;
     }
+
+    /**
+     * Submit review
+     */
+    static submitReviewsSavedUntilOnline() {
+        console.log("start to submit saved reviews...");
+
+        let objectStoreName = "laterStore";
+
+        let dbPromise = idb.open('postLaterDB', 1, function (upgradeDb) {
+            let laterStore = upgradeDb.createObjectStore(objectStoreName);
+        });
+        dbPromise.then(function (db) {
+            // opening db transaction
+            let tx = db.transaction(objectStoreName, 'readwrite');
+            let laterStore = tx.objectStore(objectStoreName);
+            console.log("getting stuff out of the store...hopefully");
+
+            laterStore.getAll().then(function (allToPost) {
+                console.log("could get summin to post");
+                console.log(allToPost);
+                allToPost.forEach(function (reviewData) {
+                    console.log("just before post");
+                    fetch("http://localhost:1337/reviews/", {
+                        method: 'post',
+                        body: reviewData,
+                    }).then(response => response.json()).then(function (resp) {
+                        console.log(resp);
+                        console.log("could now post...todo: delete entry");
+                    }).catch(function () {
+                        console.log("could still not post...");
+                    });
+                });
+            }).catch(reason => console.log('nothing from store to post now...'));
+
+        });
+
+        dbPromise.catch(reason => console.log("could not open db..."));
+
+
+    };
+
+
+    static putReviewInDB(reviewData) {
+
+        let objectStoreName = "laterStore";
+        // Save the badboy locally to post later
+        let dbPromise = idb.open('postLaterDB', 1, function (upgradeDb) {
+            let laterStore = upgradeDb.createObjectStore(objectStoreName);
+        });
+        dbPromise.then(function (db) {
+            // opening db transaction
+            let tx = db.transaction(objectStoreName, 'readwrite');
+            let reviewStore = tx.objectStore(objectStoreName);
+
+            reviewStore.put(reviewData, new Date());
+
+        });
+    }
+
 
 }

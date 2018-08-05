@@ -50,6 +50,19 @@
     <!-- end restaurant -->
     <!-- Beginning reviews -->
     <section id="reviews-container" class="restaurant-box">
+
+        <button id="favoriteButton" onclick="toggleFav()">favorite</button>
+
+
+        <form id="submit-review" onsubmit="return submitReview() && false">
+            <label for="review-name">Let us know who is reviewing:</label><br>
+            <input type="text" id="review-name" placeholder="Your Name"><br>
+            <label for="review-rating">On a scale of one to 5 [best], how much did you like it?</label><br>
+            <input type="number" id="review-rating" value="5"><br>
+            <label for="review-comments">More to say?</label><br>
+            <input type="text" id="review-comments" placeholder="Boy, this was tasty or ugh this was nasty?"><br>
+            <input type="submit" value="Submit review" id="review-submit">
+        </form>
         <ul id="reviews-list"></ul>
     </section>
     <!-- End reviews -->
