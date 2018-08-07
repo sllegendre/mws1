@@ -2,7 +2,6 @@ let restaurant;
 var map;
 const reviewsEndpoint = "http://localhost:1337/reviews/";
 let favoritesEndpoint = "";
-var isFavorite = false;
 
 
 /**
@@ -47,6 +46,7 @@ fetchRestaurantFromURL = (callback) => {
             callback(null, restaurant);
         });
     }
+
 };
 
 /**
@@ -93,6 +93,9 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
         hours.appendChild(row);
     }
+
+    setFav();
+
 };
 
 /**
@@ -204,6 +207,7 @@ getParameterByName = (name, url) => {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
 
+
 let submitReview = function () {
 
     // Get data from form
@@ -220,17 +224,17 @@ let submitReview = function () {
     // Display it
     const ul = document.getElementById('reviews-list');
     ul.insertBefore(createReviewHTML(reviewData), ul.firstChild);
-    reviewForm.reset();
 
 
     // Try to post it
     let postPromise = fetch(reviewsEndpoint, {
         method: 'post',
-        body: reviewData,
+        body: JSON.stringify(reviewData)
     });
 
     postPromise.then(response => response.json()).then(function (resp) {
         console.log(resp);
+        reviewForm.reset();
     });
 
     // If it does not go through save it in a db and register a sync event
@@ -247,43 +251,45 @@ let submitReview = function () {
 
 };
 
-
-let toggleFav = function () {
-    const favoriteButton = document.getElementById('favoriteButton');
-
+// Calls the endpoint to toggle fav situation
+toggleFav = () => {
     fetch(favoritesEndpoint, {
         method: 'put'
     }).then(response => response.json()).then(function (resp) {
-        console.log(resp);
-        isFavorite = !isFavorite;
-        console.log("isFavorite is now: " + isFavorite);
-        console.log(favoriteButton.innerText);
-        if (favoriteButton.innerText == "favorite") favoriteButton.innerText = "unfavorite";
-        else favoriteButton.innerText = "favorite";
+        self.restaurant = resp;
+        setFav();
     });
-
-
 };
-
 
 /**
- * Find out if favorite
+ * Initialize the favorite situation
  */
-findOutFavorite = (isFavorite = self.isFavorite, restaurant = self.restaurant) =>  {
-    let oppositeFav = !isFavorite;
-    console.log(window.location.href.split('=')[1]);
-    let inbetween = "/" + window.location.href.split('=')[1] + "/" + "?is_favorite=";
+setFav = () => {
 
+    // Make sure member is boolean... server responses so and so
+    if (self.restaurant.is_favorite.toString() == "true") self.restaurant.is_favorite = true;
+    else self.restaurant.is_favorite = false;
 
-    favoritesEndpoint = "http://localhost:1337/restaurants" + inbetween + oppositeFav.toString();
-    console.log(favoritesEndpoint);
+    // Set button
+    setFavButton(self.restaurant.is_favorite);
 
-
-    // fetch("http://localhost:1337/restaurants/?is_favorite=true").catch(response => response.json()).then(function (resp) {
-    //     console.log("feteched favs");
-    //     console.log(resp);
-    //
-    // });
+    //Set URL
+    setFavoritURL(!self.restaurant.is_favorite);
 };
 
-findOutFavorite();
+/**
+ * Set right URL to change fav status
+ */
+setFavoritURL = (lastParam) => {
+    let inbetween = "/" + window.location.href.split('=')[1] + "/" + "?is_favorite=";
+    favoritesEndpoint = "http://localhost:1337/restaurants" + inbetween + lastParam;
+};
+
+
+setFavButton = () => {
+    const favoriteButton = document.getElementById('favoriteButton');
+    if (self.restaurant.is_favorite) favoriteButton.innerText = "unfavorite";
+    else favoriteButton.innerText = "favorite";
+};
+
+

@@ -8,10 +8,10 @@ var markers = [];
 // What is this?
 // This is copy paste from: https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent
 //  python -m SimpleHTTPServer 8000
-window.addEventListener("beforeinstallprompt", function(e) {
+window.addEventListener("beforeinstallprompt", function (e) {
     // log the platforms provided as options in an install prompt
     console.log(e.platforms); // e.g., ["web", "android", "windows"]
-    e.userChoice.then(function(outcome) {
+    e.userChoice.then(function (outcome) {
         console.log(outcome); // either "accepted" or "dismissed"
     }, handleError);
 });
@@ -23,6 +23,44 @@ window.addEventListener("beforeinstallprompt", function(e) {
 document.addEventListener('DOMContentLoaded', (event) => {
     fetchNeighborhoods();
     fetchCuisines();
+});
+
+
+document.addEventListener("ReadyToLL", function() {
+    let lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+    let active = false;
+
+    const lazyLoad = function() {
+        if (active === false) {
+            active = true;
+
+            setTimeout(function() {
+                lazyImages.forEach(function(lazyImage) {
+                    if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
+                        lazyImage.src = lazyImage.dataset.src;
+                        lazyImage.srcset = lazyImage.dataset.srcset;
+                        lazyImage.classList.remove("lazy");
+
+                        lazyImages = lazyImages.filter(function(image) {
+                            return image !== lazyImage;
+                        });
+
+                        if (lazyImages.length === 0) {
+                            document.removeEventListener("scroll", lazyLoad);
+                            window.removeEventListener("resize", lazyLoad);
+                            window.removeEventListener("orientationchange", lazyLoad);
+                        }
+                    }
+                });
+
+                active = false;
+            }, 200);
+        }
+    };
+
+    document.addEventListener("scroll", lazyLoad);
+    window.addEventListener("resize", lazyLoad);
+    window.addEventListener("orientationchange", lazyLoad);
 });
 
 
@@ -96,7 +134,7 @@ window.initMap = () => {
     });
 
     google.maps.event.addListenerOnce(map, 'idle', () => {
-        console.log('doing it... A11y');
+        // doing it... A11y
         document.getElementsByTagName('iframe')[0].title = "Google Maps";
     });
 
@@ -150,6 +188,8 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
         ul.append(createRestaurantHTML(restaurant));
     });
     addMarkersToMap();
+    var event = new Event('ReadyToLL');
+    document.dispatchEvent(event);
 };
 
 /**
@@ -160,9 +200,10 @@ createRestaurantHTML = (restaurant) => {
     li.className = "box";
 
     const image = document.createElement('img');
-    image.className = 'restaurant-img';
-    image.src = DBHelper.imageUrlForRestaurant(restaurant);
-    image.alt = "This is an image of the "+restaurant.name.toString()+" restaurant.";
+    image.className = 'lazy restaurant-img';
+    image.src = '/img/1.jpg';
+    image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
+    image.alt = "This is an image of the " + restaurant.name.toString() + " restaurant.";
     li.append(image);
 
     const name = document.createElement('h2');
@@ -198,3 +239,6 @@ addMarkersToMap = (restaurants = self.restaurants) => {
         self.markers.push(marker);
     });
 };
+
+// From https://developers.google.com/web/fundamentals/performance/lazy-loading-guidance/images-and-video/
+

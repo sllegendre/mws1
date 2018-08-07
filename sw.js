@@ -8,7 +8,7 @@ Upon installation of the service worker, cache everything, so we can serce it in
 self.addEventListener('install', function (event) {
     event.waitUntil(
         caches.open('restaurants-static-v0').then(function (cache) {
-            console.log('am now caching stuff...');
+            //am now caching stuff...
             cache.addAll([
                 // These can be cached with addAll, because atomicity won't hurt (I expect all to go through)
                 '/',
@@ -18,7 +18,7 @@ self.addEventListener('install', function (event) {
                 '/js/main.js',
                 '/js/IndexController.js',
                 '/js/restaurant_info.js',
-                // '/data/restaurants.json',
+                '/js/idb.js',
                 '/img/1.jpg',
                 '/img/2.jpg',
                 '/img/3.jpg',
@@ -130,7 +130,7 @@ self.addEventListener('fetch', function (event) {
 
 
 self.addEventListener('sync', function (event) {
-    console.log("snyc event... verpennt");
+
     if (event.tag == 'sendReview') {
         console.log('in sendREview in sw.js');
         event.waitUntil(DBHelper.submitReviewsSavedUntilOnline());
