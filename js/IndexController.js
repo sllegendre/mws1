@@ -1,16 +1,1 @@
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js', {scope: '../'}).then(function (registration) {
-            // Registration was successful
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function (err) {
-            // registration failed :(
-            console.log('ServiceWorker registration failed: ', err);
-        });
-    });
-
-    // Then later, request a one-off sync:
-    navigator.serviceWorker.ready.then(function(swRegistration) {
-        return swRegistration.sync.register('outbox');
-    });
-}
+"serviceWorker"in navigator&&(window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js",{scope:"../"}).then(function(e){console.log("ServiceWorker registration successful with scope: ",e.scope)},function(e){console.log("ServiceWorker registration failed: ",e)})}),navigator.serviceWorker.ready.then(function(e){return e.sync.register("outbox")}));

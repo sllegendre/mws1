@@ -2,6 +2,14 @@
   "name": "mws-restaurant-stage-1",
   "version": "0.0.1",
   "dependencies": {
-    "idb": "latest"
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-uglify": "^3.0.1",
+    "idb": "latest",
+    "uglify-es": "^3.3.9"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "gulp-concat": "^2.6.1"
   }
 }
