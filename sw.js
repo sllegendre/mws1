@@ -132,7 +132,7 @@ self.addEventListener('fetch', function (event) {
 self.addEventListener('sync', function (event) {
 
     if (event.tag == 'sendReview') {
-        console.log('in sendREview in sw.js');
+        //console.log('in sendREview in sw.js');
         event.waitUntil(DBHelper.submitReviewsSavedUntilOnline());
     }
 });

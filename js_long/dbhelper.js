@@ -59,7 +59,7 @@ class DBHelper {
         });
 
         dbPromise.catch(function (reason) { //Not sure if this works. If for some reason the promise does not resolve
-            console.log("failed...reason is");
+            //console.log("failed...reason is");
             console.log(reason);
             callback(reason, null);
         });
@@ -218,7 +218,7 @@ class DBHelper {
 
             // Try to get the restaurant specific reviews
             let endpointForRest = reviewsEndpoint + "?restaurant_id=" + restaurantID;
-            console.log("calling..." + endpointForRest);
+            // calling... endpointForRest
 
             // fetch json from server
             fetch(endpointForRest).then(response => response.json()).then(function (reviewsData) {
@@ -260,7 +260,7 @@ class DBHelper {
      * Submit review
      */
     static submitReviewsSavedUntilOnline() {
-        console.log("start to submit saved reviews...");
+        //start to submit saved reviews...
 
         let objectStoreName = "laterStore";
 
@@ -271,19 +271,19 @@ class DBHelper {
             // opening db transaction
             let tx = db.transaction(objectStoreName, 'readwrite');
             let laterStore = tx.objectStore(objectStoreName);
-            console.log("getting stuff out of the store...hopefully");
+            // getting stuff out of the store...hopefully
 
             laterStore.getAll().then(function (allToPost) {
-                console.log("could get summin to post");
-                console.log(allToPost);
+                // could get summin to post
+
                 allToPost.forEach(function (reviewData) {
-                    console.log("just before post");
+                    // just before post
                     fetch("http://localhost:1337/reviews/", {
                         method: 'post',
                         body: reviewData,
                     }).then(response => response.json()).then(function (resp) {
                         console.log(resp);
-                        console.log("could now post...todo: delete entry");
+                        // could now post...
                     }).catch(function () {
                         console.log("could still not post...");
                     });

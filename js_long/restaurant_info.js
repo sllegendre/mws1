@@ -105,10 +105,10 @@ async function fillReviewsHTML(reviews) {
 
     const container = document.getElementById('reviews-container');
     const reviewForm = document.getElementById('submit-review');
-    if(await checkIfElemPresent("reviews-header")) {
+    if (await checkIfElemPresent("reviews-header")) {
         const title = document.getElementById("reviews-header");
         title.innerHTML = 'Reviews';
-    }else{
+    } else {
         const title = document.createElement('h2');
         title.id = "reviews-header";
         title.innerHTML = 'Reviews';
@@ -134,15 +134,15 @@ async function fillReviewsHTML(reviews) {
 
 /**
  * Check if title is there already
-*/
+ */
 checkIfElemPresent = (elemID) => {
     try {
-        let wurst = document.getElementById(elemID);
-        console.log("returning true");
-        return wurst;
+        let lmnt = document.getElementById(elemID);
+
+        return lmnt;
     } catch (e) {
         console.log(e);
-        console.log("returning false");
+
         return false;
     }
 };
@@ -176,9 +176,12 @@ createReviewHTML = (review) => {
  */
 fillBreadcrumb = (restaurant = self.restaurant) => {
     const breadcrumb = document.getElementById('breadcrumb');
-    const li = document.createElement('li');
-    li.innerHTML = restaurant.name;
-    breadcrumb.appendChild(li);
+    var children = breadcrumb.childElementCount;
+    if (children<2) { //fixes weird duplicate children bug
+        const li = document.createElement('li');
+        li.innerHTML = restaurant.name;
+        breadcrumb.appendChild(li);
+    }
 };
 
 /**
@@ -232,7 +235,7 @@ let submitReview = function () {
 
     // If it does not go through save it in a db and register a sync event
     postPromise.catch(function (reason) {
-        console.log('does not go through save it in a db and register a sync event');
+        // does not go through save it in a db and register a sync event
         console.log(reason);
         DBHelper.uploadReviewLaterFromDB(reviewData);
         navigator.serviceWorker.ready.then(function (swRegistration) {
