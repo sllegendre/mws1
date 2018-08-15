@@ -2,7 +2,13 @@ let restaurant;
 var map;
 let reviewsEndpoint = "http://localhost:1337/reviews/";
 let favoritesEndpoint = "";
-let timesThisBitchHasBeenCalled = 0;
+
+
+window.addEventListener('online', function(e) {
+    // back on line
+    DBHelper.submitReviewsSavedUntilOnline();
+}, false);
+
 
 /**
  * Initialize Google map, called from HTML.
@@ -214,8 +220,6 @@ let submitReview = function () {
         "comments": reviewForm["review-comments"].value,
     };
 
-    console.log(reviewData);
-
     // Display it
     const ul = document.getElementById('reviews-list');
     ul.insertBefore(createReviewHTML(reviewData), ul.firstChild);
@@ -235,12 +239,12 @@ let submitReview = function () {
 
     // If it does not go through save it in a db and register a sync event
     postPromise.catch(function (reason) {
-        // does not go through save it in a db and register a sync event
+        console.log("does not go through save it in a db and register a sync event");
         console.log(reason);
         DBHelper.uploadReviewLaterFromDB(reviewData);
-        navigator.serviceWorker.ready.then(function (swRegistration) {
-            console.log(swRegistration.sync.register('sendReview'));
-        });
+        // navigator.serviceWorker.ready.then(function (swRegistration) {
+        //     console.log(swRegistration.sync.register('sendReview'));
+        // });
     });
 
     return false;

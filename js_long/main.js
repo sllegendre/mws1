@@ -17,6 +17,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
 });
 
 
+
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
@@ -25,6 +26,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     fetchCuisines();
 });
 
+
+window.addEventListener('online', function(e) {
+    // back on the line
+    DBHelper.submitReviewsSavedUntilOnline();
+}, false);
 
 document.addEventListener("ReadyToLL", function() {
     let lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));

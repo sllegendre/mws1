@@ -244,7 +244,7 @@ class DBHelper {
                 // Use stale reviews from the DB if possible
                 reviewStore.getAll().then(function (reviewsFromDB) {
 
-                callback(reviewsFromDB);
+                    callback(reviewsFromDB);
 
                 }).catch(function (reason) {
                     console.log(reason);
@@ -260,7 +260,7 @@ class DBHelper {
      * Submit review
      */
     static submitReviewsSavedUntilOnline() {
-        //start to submit saved reviews...
+        // it should now post start to submit saved reviews from the time when offline...
 
         let objectStoreName = "laterStore";
 
@@ -272,23 +272,32 @@ class DBHelper {
             let tx = db.transaction(objectStoreName, 'readwrite');
             let laterStore = tx.objectStore(objectStoreName);
             // getting stuff out of the store...hopefully
+            let toDelete = [];
 
             laterStore.getAll().then(function (allToPost) {
                 // could get summin to post
 
-                allToPost.forEach(function (reviewData) {
+                allToPost.forEach(async function (reviewData) {
                     // just before post
-                    fetch("http://localhost:1337/reviews/", {
+                    await fetch("http://localhost:1337/reviews/", {
                         method: 'post',
                         body: reviewData,
                     }).then(response => response.json()).then(function (resp) {
-                        console.log(resp);
-                        // could now post...
+
+                        toDelete.push(reviewData.comments);
                     }).catch(function () {
                         console.log("could still not post...");
                     });
+
+                    toDelete.forEach(function (key) {
+                        let tx = db.transaction(objectStoreName, 'readwrite');
+                        let laterStore = tx.objectStore(objectStoreName);
+                        laterStore.delete(key).then(val => console.log("")).catch("not deleted...");
+                    });
+
                 });
             }).catch(reason => console.log('nothing from store to post now...'));
+
 
         });
 
@@ -310,8 +319,13 @@ class DBHelper {
             let tx = db.transaction(objectStoreName, 'readwrite');
             let reviewStore = tx.objectStore(objectStoreName);
 
-            reviewStore.put(reviewData, new Date());
+            reviewStore.put(reviewData, reviewData.comments);
 
+        });
+
+        dbPromise.catch(reason => {
+            console.log(reason);
+            console.log("this should not happen...");
         });
     }
 
