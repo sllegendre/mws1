@@ -73,3 +73,9 @@ input:focus:required:invalid {
 input:focus:required:valid {
     border: 2px solid green;
 }
+
+
+/* ====================== Edge Case Handling for Reviews ====================== */
+.review-element{
+    word-break: break-all;
+}

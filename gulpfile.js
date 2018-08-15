@@ -27,7 +27,7 @@ gulp.task('combine-css', () => {
 });
 
 gulp.task('minify-css', () => {
-    return gulp.src('styles/main.css')
+    return gulp.src('css/main.css')
         .pipe(cleanCSS({compatibility: 'ie11'}))
-        .pipe(gulp.dest('css/main.css'));
+        .pipe(gulp.dest('css/'));
 });
