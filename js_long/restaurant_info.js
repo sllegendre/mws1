@@ -1,8 +1,8 @@
 let restaurant;
 var map;
-const reviewsEndpoint = "http://localhost:1337/reviews/";
+let reviewsEndpoint = "http://localhost:1337/reviews/";
 let favoritesEndpoint = "";
-
+let timesThisBitchHasBeenCalled = 0;
 
 /**
  * Initialize Google map, called from HTML.
@@ -72,7 +72,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
         fillRestaurantHoursHTML();
     }
     // fill reviews
-    fillReviewsHTML();
+    DBHelper.fetchReviewsForRestaurant(reviewsEndpoint, self.restaurant.id, fillReviewsHTML);
 };
 
 /**
@@ -101,65 +101,51 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+async function fillReviewsHTML(reviews) {
 
     const container = document.getElementById('reviews-container');
     const reviewForm = document.getElementById('submit-review');
-    const title = document.createElement('h3');
-    title.innerHTML = 'Reviews';
-    //container.appendChild(title);
-    container.insertBefore(title,reviewForm);
-    let objectStoreName = "reviewsStore";
+    if(await checkIfElemPresent("reviews-header")) {
+        const title = document.getElementById("reviews-header");
+        title.innerHTML = 'Reviews';
+    }else{
+        const title = document.createElement('h2');
+        title.id = "reviews-header";
+        title.innerHTML = 'Reviews';
+        container.insertBefore(title, reviewForm);
+    }
 
-    // open database
-    let dbPromise = idb.open('reviewsDB', 1, function (upgradeDb) {
-        let restaurantsStore = upgradeDb.createObjectStore(objectStoreName, {keyPath: 'id'});
-    });
-
-    dbPromise.then(function (db) {
-
-        // fetch json from server
-        fetch(reviewsEndpoint).then(response => response.json()).then(function (reviewsData) {
-            const ul = document.getElementById('reviews-list');
-
-            // opening db transaction
-            let tx = db.transaction(objectStoreName, 'readwrite');
-            let reviewStore = tx.objectStore(objectStoreName);
-
-            // Adding each review to the DOM and the DB
-            reviewsData.forEach(review => {
-                reviewStore.put(review).catch(reason => console.log(reason));
-                if (review.restaurant_id == self.restaurant.id) {
-                    ul.appendChild(createReviewHTML(review));
-                }
-            });
-
-            container.appendChild(ul);
-
-        }).catch(function (reason) {
-            console.log(reason);
-            reviewStore.getAll().then(function (reviewsFromDB) {
-
-                reviewsFromDB.forEach(review => {
-                    reviewStore.put(review).catch(reason => console.log(reason));
-                    if (review.restaurant_id == self.restaurant.id) {
-                        ul.appendChild(createReviewHTML(review));
-                    }
-                });
-            }).catch(function (reason) {
-                console.log(reason);
-                const noReviews = document.createElement('p');
-                noReviews.innerHTML = 'No reviews yet!';
-                container.appendChild(noReviews);
-            });
-
-
+    if (!reviews) {
+        const noReviews = document.createElement('p');
+        noReviews.innerHTML = 'No reviews yet!';
+        container.appendChild(noReviews);
+    } else {
+        const ul = document.getElementById('reviews-list');
+        reviews.forEach(review => {
+            if (review.restaurant_id == self.restaurant.id) {
+                ul.appendChild(createReviewHTML(review));
+            }
         });
+        container.appendChild(ul);
+    }
 
-    });
+}
 
+
+/**
+ * Check if title is there already
+*/
+checkIfElemPresent = (elemID) => {
+    try {
+        let wurst = document.getElementById(elemID);
+        console.log("returning true");
+        return wurst;
+    } catch (e) {
+        console.log(e);
+        console.log("returning false");
+        return false;
+    }
 };
-
 
 /**
  * Create review HTML and add it to the webpage.
@@ -225,6 +211,8 @@ let submitReview = function () {
         "comments": reviewForm["review-comments"].value,
     };
 
+    console.log(reviewData);
+
     // Display it
     const ul = document.getElementById('reviews-list');
     ul.insertBefore(createReviewHTML(reviewData), ul.firstChild);
@@ -232,12 +220,13 @@ let submitReview = function () {
 
     // Try to post it
     let postPromise = fetch(reviewsEndpoint, {
-        method: 'post',
+        method: 'POST',
         body: JSON.stringify(reviewData)
     });
 
     postPromise.then(response => response.json()).then(function (resp) {
         console.log(resp);
+        DBHelper.putReviewInNormalDB(resp);
         reviewForm.reset();
     });
 
@@ -245,7 +234,7 @@ let submitReview = function () {
     postPromise.catch(function (reason) {
         console.log('does not go through save it in a db and register a sync event');
         console.log(reason);
-        DBHelper.putReviewInDB(reviewData);
+        DBHelper.uploadReviewLaterFromDB(reviewData);
         navigator.serviceWorker.ready.then(function (swRegistration) {
             console.log(swRegistration.sync.register('sendReview'));
         });
@@ -291,11 +280,10 @@ setFavoritURL = (lastParam) => {
 
 
 setFavButton = () => {
-    const favoriteButton = document.getElementById('favoriteButton');
+    const favoriteButton = document.getElementById('favorite-button');
     if (self.restaurant.is_favorite) favoriteButton.innerText = "unfavorite";
     else favoriteButton.innerText = "favorite";
 };
-
 
 
 // from: https://stackoverflow.com/questions/4793604/how-to-insert-an-element-after-another-element-in-javascript-without-using-a-lib

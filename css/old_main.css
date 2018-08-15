@@ -56,3 +56,20 @@
     bottom: 0;
     width: 100%;
 }
+
+
+/* ====================== Form Elements ====================== */
+input, #favorite-button, #review-comments {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+input:focus:required:invalid {
+    border: 2px dashed red;
+}
+
+input:focus:required:valid {
+    border: 2px solid green;
+}

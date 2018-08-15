@@ -3,8 +3,6 @@
  */
 
 
-
-
 class DBHelper {
 
 
@@ -205,6 +203,60 @@ class DBHelper {
     }
 
     /**
+     * Fetch Reviews for one restaurant
+     */
+    static fetchReviewsForRestaurant(reviewsEndpoint, restaurantID, callback) {
+
+        let objectStoreName = "reviewsStore";
+
+        // open database
+        let dbPromise = idb.open('reviewsDB', 1, function (upgradeDb) {
+            let restaurantsStore = upgradeDb.createObjectStore(objectStoreName, {keyPath: 'id'});
+        });
+
+        dbPromise.then(function (db) {
+
+            // Try to get the restaurant specific reviews
+            let endpointForRest = reviewsEndpoint + "?restaurant_id=" + restaurantID;
+            console.log("calling..." + endpointForRest);
+
+            // fetch json from server
+            fetch(endpointForRest).then(response => response.json()).then(function (reviewsData) {
+
+                // opening db transaction
+                let tx = db.transaction(objectStoreName, 'readwrite');
+                let reviewStore = tx.objectStore(objectStoreName);
+
+                // Adding each review to the DB
+                reviewsData.forEach(review => {
+                    reviewStore.put(review).catch(reason => console.log(reason));
+                });
+
+                callback(reviewsData);
+
+            }).catch(function (reason) {
+                console.log(reason);
+
+                // opening db transaction
+                let tx = db.transaction(objectStoreName, 'readonly');
+                let reviewStore = tx.objectStore(objectStoreName);
+
+                // Use stale reviews from the DB if possible
+                reviewStore.getAll().then(function (reviewsFromDB) {
+
+                callback(reviewsFromDB);
+
+                }).catch(function (reason) {
+                    console.log(reason);
+                    callback(false);
+                });
+
+
+            });
+        });
+    };
+
+    /**
      * Submit review
      */
     static submitReviewsSavedUntilOnline() {
@@ -246,7 +298,7 @@ class DBHelper {
     };
 
 
-    static putReviewInDB(reviewData) {
+    static uploadReviewLaterFromDB(reviewData) {
 
         let objectStoreName = "laterStore";
         // Save the badboy locally to post later
@@ -261,6 +313,26 @@ class DBHelper {
             reviewStore.put(reviewData, new Date());
 
         });
+    }
+
+    static putReviewInNormalDB(reviewData) {
+        let objectStoreName = "reviewsStore";
+        // Save the badboy locally to post later
+        let dbPromise = idb.open('reviewsDB', 1, function (upgradeDb) {
+            let reviewsStore = upgradeDb.createObjectStore(objectStoreName);
+        });
+
+        dbPromise.then(function (db) {
+
+            console.log("should add to normal db...");
+            // opening db transaction
+            let tx = db.transaction(objectStoreName, 'readwrite');
+            let reviewsStore = tx.objectStore(objectStoreName);
+
+            reviewsStore.put(reviewData);
+
+        });
+
     }
 
 
